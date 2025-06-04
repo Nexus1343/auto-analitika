@@ -4,7 +4,7 @@ import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MapPin, Gauge, DollarSign, AlertTriangle, Settings, Hash, Eye, BarChart3, ArrowLeft, Loader2 } from "lucide-react"
+import { MapPin, Gauge, DollarSign, AlertTriangle, Settings, Hash, Eye, BarChart3, ArrowLeft, Loader2, ExternalLink } from "lucide-react"
 import { useState, useEffect, use } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
@@ -139,6 +139,25 @@ export default function CarDetailPage({ params }: { params: Promise<{ lot: strin
 
   const getAuctionPlatform = (domainName: string) => {
     return domainName.replace("_", ".").toUpperCase().replace(".COM", "")
+  }
+
+  const getAuctionUrl = (domainName: string, lotNumber: string, externalId?: string) => {
+    const domain = domainName.toLowerCase()
+    
+    if (domain.includes('copart')) {
+      return `https://www.copart.com/lot/${lotNumber}`
+    } else if (domain.includes('iaai')) {
+      // For IAAI, use external_id which already includes ~US suffix
+      return `https://www.iaai.com/vehicledetail/${externalId || lotNumber}`
+    }
+    
+    // Default fallback (shouldn't happen with your current data)
+    return `https://www.copart.com/lot/${lotNumber}`
+  }
+
+  const handleViewOnAuction = () => {
+    const url = getAuctionUrl(lot_info.domain.name, lot_info.lot, lot_info.external_id)
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   if (loading) {
@@ -397,6 +416,14 @@ export default function CarDetailPage({ params }: { params: Promise<{ lot: strin
                   <Button variant="outline" className="w-full">
                     <BarChart3 className="w-4 h-4 mr-2" />
                     Analyze
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-green-200 hover:bg-green-50 hover:border-green-300"
+                    onClick={handleViewOnAuction}
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View car on auction
                   </Button>
                 </div>
               </CardContent>
