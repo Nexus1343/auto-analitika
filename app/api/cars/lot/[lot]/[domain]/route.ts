@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const CARSTAT_API_KEY = '74167e04b4ed1d4095ff50d1f8c3a09f'
-const CARSTAT_API_URL = 'https://carstat.dev/api'
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ lot: string; domain: string }> }
 ) {
   try {
+    // Get environment variables
+    const CARSTAT_API_KEY = process.env.CARSTAT_API_KEY
+    const CARSTAT_API_URL = process.env.CARSTAT_API_URL
+
+    // Check if required environment variables are set
+    if (!CARSTAT_API_KEY || !CARSTAT_API_URL) {
+      console.error('Missing required environment variables: CARSTAT_API_KEY or CARSTAT_API_URL')
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
     const { lot, domain } = await params
 
     // Use the lot search endpoint
